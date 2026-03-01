@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <link rel="stylesheet" href="tw.css" />
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap');
+        body { 
+            font-family: 'Inter', -apple-system, sans-serif; 
+            margin: 0; 
+            background: #fff;
+            color: #1e293b;
+        }
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+        
+        /* 状态控制：物理隔离 */
+        .state-view { display: none; }
+        .state-active { display: flex !important; }
+        
+        /* 选项卡激活样式 */
+        .tab-active { 
+            color: #4f46e5; 
+            border-bottom: 2px solid #4f46e5; 
+            background: rgba(79, 70, 229, 0.03);
+        }
+
+        /* 深度 Markdown 渲染样式 */
+        .prose-content h3 { font-weight: 800; font-size: 0.9rem; color: #0f172a; margin-top: 1.5rem; margin-bottom: 0.5rem; text-transform: uppercase; letter-spacing: 0.05em; border-left: 3px solid #6366f1; padding-left: 10px; }
+        .prose-content p { font-size: 0.875rem; line-height: 1.7; color: #475569; margin-bottom: 0.8rem; }
+        .prose-content ul { list-style: none; padding: 0; }
+        .prose-content li { display: flex; gap: 8px; font-size: 0.875rem; color: #475569; margin-bottom: 0.6rem; }
+        .prose-content li::before { content: "•"; color: #6366f1; font-weight: 900; }
+        .prose-content strong { color: #0f172a; font-weight: 700; }
+    </style>
+</head>
+<body class="antialiased overflow-hidden bg-slate-50">
+    <div class="h-screen flex flex-col border-l border-slate-200 shadow-2xl bg-white overflow-hidden relative">
+        
+        <!-- Header -->
+        <header class="p-5 flex items-center justify-between shrink-0 border-b border-slate-100 bg-white/80 backdrop-blur-md">
+            <div class="flex items-center gap-3">
+                <div class="w-9 h-9 bg-indigo-600 rounded-xl flex items-center justify-center text-white shadow-lg shadow-indigo-100">
+                    <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="3" viewBox="0 0 24 24"><path d="M13 10V3L4 14h7v7l9-11h-7z" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                </div>
+                <div>
+                    <h1 class="font-black text-xs uppercase tracking-widest text-slate-900">Mind Flow</h1>
+                    <p class="text-[9px] font-bold text-slate-400 uppercase tracking-tighter">AI Insight Assistant</p>
+                </div>
+            </div>
+            <div class="flex items-center gap-3">
+              <button id="btn-save-header" class="hidden md:flex items-center gap-2 px-3 py-1.5 rounded-lg text-[10px] font-black uppercase tracking-widest bg-slate-900 text-white hover:bg-indigo-600 transition-all shadow-lg shadow-slate-200">
+                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M8 7H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-3m-1 4l-3 3m0 0l-3-3m3 3V4" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                <span>Save</span>
+              </button>
+              <div id="header-loader" class="w-4 h-4 border-2 border-indigo-600 border-t-transparent rounded-full animate-spin hidden"></div>
+            </div>
+        </header>
+
+        <!-- Tabs -->
+        <nav class="flex shrink-0 border-b border-slate-100">
+            <button id="tab-analysis" class="flex-1 py-3 text-[10px] font-black uppercase tracking-widest tab-active outline-none transition-all">内容研判</button>
+            <button id="tab-assets" class="flex-1 py-3 text-[10px] font-black uppercase tracking-widest text-slate-400 hover:text-slate-600 transition-all outline-none">视觉素材</button>
+        </nav>
+
+        <!-- Main Content (Scrolling Area) -->
+        <main class="flex-1 overflow-y-auto p-6 no-scrollbar relative">
+            
+            <!-- 1. LOADING VIEW -->
+            <div id="view-loading" class="state-view state-active flex-col items-center justify-center py-24 text-center gap-6 animate-in fade-in duration-500">
+                <div class="relative w-14 h-14">
+                    <div class="absolute inset-0 border-4 border-slate-100 rounded-full"></div>
+                    <div class="absolute inset-0 border-4 border-indigo-600 border-t-transparent rounded-full animate-spin"></div>
+                </div>
+                <div class="space-y-2">
+                    <p class="text-xs font-black text-slate-900 uppercase tracking-widest">构建深度研报中</p>
+                    <p class="text-[10px] font-medium text-slate-400">GLM-4.6V 正在解析语义逻辑...</p>
+                </div>
+            </div>
+
+            <!-- 2. ANALYSIS READY VIEW -->
+            <div id="view-ready" class="state-view flex-col space-y-6 animate-in slide-in-from-bottom-4 fade-in duration-500">
+                <section class="bg-indigo-50/60 rounded-[24px] p-6 border border-indigo-100/50">
+                  <div class="flex items-center justify-between mb-2">
+                    <h3 class="text-[10px] font-black text-indigo-900 uppercase tracking-widest flex items-center gap-2">
+                        <span class="w-1 h-3 bg-indigo-500 rounded-full"></span>
+                        Overview
+                    </h3>
+                    <button id="btn-toggle-assets" class="text-[10px] font-black text-indigo-600 uppercase tracking-widest hover:underline flex items-center gap-1">
+                      <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M4 6h16M4 12h16M4 18h16" stroke-width="2.5"/></svg>
+                      图片素材
+                    </button>
+                  </div>
+                  <p id="ai-summary" class="text-sm font-semibold text-indigo-900/90 leading-relaxed"></p>
+                </section>
+
+                <section id="save-bar" class="bg-white rounded-[24px] border border-slate-200 p-4 flex items-center gap-3">
+                  <div class="flex-1 grid grid-cols-2 gap-3">
+                    <div class="space-y-1.5">
+                      <label class="text-[9px] font-black text-slate-400 uppercase tracking-widest ml-1">存储项目</label>
+                      <select id="save-project-select" class="w-full bg-white border border-slate-200 rounded-xl px-3 py-2.5 text-[11px] font-bold outline-none focus:ring-4 ring-indigo-500/10 transition-all appearance-none cursor-pointer"></select>
+                    </div>
+                    <div class="space-y-1.5">
+                      <label class="text-[9px] font-black text-slate-400 uppercase tracking-widest ml-1">分类页签</label>
+                      <select id="save-tag-select" class="w-full bg-white border border-slate-200 rounded-xl px-3 py-2.5 text-[11px] font-bold outline-none focus:ring-4 ring-indigo-500/10 transition-all appearance-none cursor-pointer">
+                        <option value="竞品研究">核心竞品</option>
+                        <option value="需求灵感">调研灵感</option>
+                      </select>
+                    </div>
+                  </div>
+                  <button id="save-bar-btn" class="px-5 py-3 bg-slate-900 text-white rounded-xl text-[11px] font-black uppercase tracking-[0.15em] hover:bg-indigo-600 transition-all shadow-lg shadow-slate-200">保存</button>
+                </section>
+
+                <section id="inline-assets" class="hidden">
+                  <div class="bg-white rounded-[24px] border border-slate-200 p-4">
+                    <div id="asset-main" class="aspect-[4/3] bg-slate-50 rounded-2xl border border-slate-200 overflow-hidden flex items-center justify-center mb-3">
+                      <span class="text-[10px] font-black text-slate-300 uppercase tracking-widest">No Image</span>
+                    </div>
+                    <div id="asset-thumbs" class="flex gap-2 overflow-x-auto no-scrollbar"></div>
+                  </div>
+                </section>
+                
+                <section id="ai-detail" class="prose-content px-1 pb-10">
+                  <!-- Markdown Content Injected Here -->
+                </section>
+            </div>
+
+            <!-- 3. ASSETS VIEW -->
+            <div id="view-assets" class="state-view grid grid-cols-2 gap-3 animate-in fade-in duration-500">
+                <!-- Images injected here -->
+            </div>
+
+            <!-- 4. ERROR VIEW -->
+            <div id="view-error" class="state-view flex-col items-center justify-center py-20 text-center gap-4">
+                <div class="w-12 h-12 bg-red-50 text-red-500 rounded-full flex items-center justify-center">
+                    <svg width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg>
+                </div>
+                <p id="error-msg" class="text-xs font-bold text-slate-400 px-6 uppercase"></p>
+            </div>
+        </main>
+
+        <!-- Footer: Action Panel (只有就绪时显示) -->
+        <footer id="footer-actions" class="hidden p-6 bg-white border-t border-slate-100 shrink-0 space-y-4 shadow-[0_-20px_40px_rgba(0,0,0,0.03)] animate-in slide-in-from-bottom-2 duration-300">
+            <div class="grid grid-cols-2 gap-3">
+                <div class="space-y-1.5">
+                    <label class="text-[9px] font-black text-slate-400 uppercase tracking-widest ml-1">存储项目</label>
+                    <select id="project-select" class="w-full bg-white border border-slate-200 rounded-xl px-3 py-2.5 text-[11px] font-bold outline-none focus:ring-4 ring-indigo-500/10 transition-all appearance-none cursor-pointer"></select>
+                </div>
+                <div class="space-y-1.5">
+                    <label class="text-[9px] font-black text-slate-400 uppercase tracking-widest ml-1">分类页签</label>
+                    <select id="tag-select" class="w-full bg-white border border-slate-200 rounded-xl px-3 py-2.5 text-[11px] font-bold outline-none focus:ring-4 ring-indigo-500/10 transition-all appearance-none cursor-pointer">
+                        <option value="竞品研究">核心竞品</option>
+                        <option value="需求灵感">调研灵感</option>
+                        <option value="用户反馈">用户反馈</option>
+                    </select>
+                </div>
+            </div>
+            <button id="btn-save" class="w-full bg-slate-900 text-white py-4 rounded-2xl font-black text-[11px] uppercase tracking-[0.2em] shadow-xl shadow-slate-200 transition-all hover:bg-indigo-600 active:scale-[0.98] flex items-center justify-center gap-2">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M8 7H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-3m-1 4l-3 3m0 0l-3-3m3 3V4" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                <span>保存至 Mind Flow</span>
+            </button>
+        </footer>
+
+        <!-- Success Overlay (全屏成功反馈) -->
+        <div id="view-success" class="state-view absolute inset-0 bg-white/98 z-[100] flex-col items-center justify-center text-center gap-6 p-10 animate-in zoom-in-95 fade-in duration-300">
+            <div class="w-16 h-16 bg-emerald-500 rounded-full flex items-center justify-center text-white shadow-2xl shadow-emerald-500/30">
+                <svg width="32" height="32" fill="none" stroke="currentColor" stroke-width="4" viewBox="0 0 24 24"><path d="M5 13l4 4L19 7" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            </div>
+            <div class="space-y-1">
+                <h2 class="text-sm font-black text-slate-900 uppercase tracking-widest">已存入知识库</h2>
+                <p class="text-[11px] font-medium text-slate-400">请返回主应用查看您的深度洞察</p>
+            </div>
+            <button onclick="window.close()" class="mt-4 px-10 py-3 border border-slate-200 rounded-xl text-[10px] font-black text-slate-400 hover:text-indigo-600 hover:border-indigo-100 transition-all uppercase tracking-widest">关闭窗口</button>
+        </div>
+    </div>
+    <script src="sidebar.js"></script>
+</body>
+</html>

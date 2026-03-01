@@ -1,0 +1,28 @@
+
+{
+  "manifest_version": 3,
+  "name": "Mind Flow Web Clipper",
+  "version": "2.1",
+  "description": "一键提取网页核心内容，自动同步至 Mind Flow 项目。",
+  "permissions": ["activeTab", "scripting", "storage"],
+  "host_permissions": ["<all_urls>"],
+  "action": {
+    "default_title": "开启 Mind Flow 采集"
+  },
+  "background": {
+    "service_worker": "background.js"
+  },
+  "content_scripts": [
+    {
+      "matches": ["<all_urls>"],
+      "js": ["content.js"],
+      "css": ["sidebar.css"]
+    }
+  ],
+  "web_accessible_resources": [
+    {
+      "resources": ["sidebar.html", "sidebar.js", "tw.css"],
+      "matches": ["<all_urls>"]
+    }
+  ]
+}

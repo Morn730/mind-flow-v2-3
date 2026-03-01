@@ -1,0 +1,11 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Custom prose styles used in sidebar */
+.prose-content h3 { font-weight: 800; font-size: 0.9rem; color: #0f172a; margin-top: 1.5rem; margin-bottom: 0.5rem; text-transform: uppercase; letter-spacing: 0.05em; border-left: 3px solid #6366f1; padding-left: 10px; }
+.prose-content p { font-size: 0.875rem; line-height: 1.7; color: #475569; margin-bottom: 0.8rem; }
+.prose-content ul { list-style: none; padding: 0; }
+.prose-content li { display: flex; gap: 8px; font-size: 0.875rem; color: #475569; margin-bottom: 0.6rem; }
+.prose-content li::before { content: "•"; color: #6366f1; font-weight: 900; }
+.prose-content strong { color: #0f172a; font-weight: 700; }

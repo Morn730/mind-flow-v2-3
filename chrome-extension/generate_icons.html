@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Icon Generator for Mind Flow</title>
+    <style>
+        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; padding: 40px; text-align: center; background: #f0f4f8; color: #334155; }
+        .preview { border: 1px solid #e2e8f0; background: white; border-radius: 20%; box-shadow: 0 4px 6px rgba(0,0,0,0.05); }
+        .grid { display: flex; justify-content: center; gap: 40px; margin-top: 40px; flex-wrap: wrap; }
+        .item { display: flex; flex-direction: column; align-items: center; gap: 16px; background: white; padding: 24px; border-radius: 16px; box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1); }
+        button { 
+            padding: 10px 20px; 
+            font-size: 14px; 
+            font-weight: 600; 
+            background: #4f46e5; 
+            color: white; 
+            border: none; 
+            border-radius: 8px; 
+            cursor: pointer; 
+            transition: all 0.2s;
+        }
+        button:hover { background: #4338ca; transform: translateY(-1px); }
+        h1 { margin-bottom: 8px; }
+        p.sub { color: #64748b; margin-bottom: 32px; max-width: 600px; margin-left: auto; margin-right: auto; line-height: 1.6; }
+        code { background: #e2e8f0; padding: 2px 6px; border-radius: 4px; font-size: 0.9em; font-family: monospace; }
+    </style>
+</head>
+<body>
+    <h1>Mind Flow Icon Generator</h1>
+    <p class="sub">
+        <strong>Instruction:</strong> Chrome requires PNG icons. <br/>
+        1. Click the buttons below to download all 3 icons.<br/>
+        2. Create a folder named <code>icons</code> inside your extension folder.<br/>
+        3. Move these 3 files into that folder.
+    </p>
+    
+    <div id="status">Loading...</div>
+    <div class="grid" id="output"></div>
+
+    <script>
+        // Directly embed the SVG string to avoid local file CORS/Tainting issues
+        const svgString = `
+<svg width="512" height="512" viewBox="0 0 512 512" fill="none" xmlns="http://www.w3.org/2000/svg">
+<rect width="512" height="512" rx="128" fill="url(#paint0_linear)"/>
+<path d="M146 256C146 195.249 195.249 146 256 146C316.751 146 366 195.249 366 256" stroke="white" stroke-width="48" stroke-linecap="round"/>
+<path d="M146 256V316C146 343.614 168.386 366 196 366C223.614 366 246 343.614 246 316V256" stroke="white" stroke-width="48" stroke-linecap="round"/>
+<path d="M266 256V316C266 343.614 288.386 366 316 366C343.614 366 366 343.614 366 316V256" stroke="white" stroke-width="48" stroke-linecap="round"/>
+<defs>
+<linearGradient id="paint0_linear" x1="0" y1="0" x2="512" y2="512" gradientUnits="userSpaceOnUse">
+<stop stop-color="#4F46E5"/>
+<stop offset="1" stop-color="#7C3AED"/>
+</linearGradient>
+</defs>
+</svg>`.trim();
+
+        function init() {
+            const sizes = [16, 48, 128];
+            const output = document.getElementById('output');
+            const status = document.getElementById('status');
+            
+            const img = new Image();
+            // Encode SVG to Base64 to use as image source
+            img.src = 'data:image/svg+xml;base64,' + btoa(svgString);
+
+            img.onload = () => {
+                status.style.display = 'none';
+                
+                sizes.forEach(size => {
+                    const wrapper = document.createElement('div');
+                    wrapper.className = 'item';
+                    
+                    // Create Canvas
+                    const canvas = document.createElement('canvas');
+                    canvas.width = size;
+                    canvas.height = size;
+                    const ctx = canvas.getContext('2d');
+                    
+                    // Draw Image (High Quality)
+                    ctx.imageSmoothingEnabled = true;
+                    ctx.imageSmoothingQuality = 'high';
+                    ctx.drawImage(img, 0, 0, size, size);
+                    
+                    canvas.className = 'preview';
+                    
+                    // Download Link
+                    const link = document.createElement('a');
+                    link.download = `icon${size}.png`;
+                    link.innerHTML = `<button>Download ${size}x${size}</button>`;
+                    link.href = canvas.toDataURL("image/png");
+
+                    const label = document.createElement('span');
+                    label.innerText = `icon${size}.png`;
+                    label.style.fontWeight = 'bold';
+                    label.style.fontSize = '12px';
+                    label.style.color = '#94a3b8';
+
+                    wrapper.appendChild(canvas);
+                    wrapper.appendChild(label);
+                    wrapper.appendChild(link);
+                    output.appendChild(wrapper);
+                });
+            };
+
+            img.onerror = (e) => {
+                status.innerText = "Error loading SVG. Please check console.";
+                status.style.color = "red";
+                console.error(e);
+            };
+        }
+
+        window.onload = init;
+    </script>
+</body>
+</html>
