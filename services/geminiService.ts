@@ -18,7 +18,8 @@ export class GeminiService {
   }
   private get baseApi() {
     try {
-      return (globalThis as any).location ? "/api" : null;
+      // 与当前仓库目录结构对齐：/api/ai/*
+      return (globalThis as any).location ? "/api/ai" : null;
     } catch {
       return null;
     }
