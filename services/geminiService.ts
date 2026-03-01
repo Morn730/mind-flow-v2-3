@@ -18,7 +18,7 @@ export class GeminiService {
   }
   private get baseApi() {
     try {
-      return (globalThis as any).location ? "/api/ai" : null;
+      return (globalThis as any).location ? "/api" : null;
     } catch {
       return null;
     }
@@ -94,7 +94,11 @@ export class GeminiService {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ url, content: rawContent }),
       });
-      if (r.ok) return r.json();
+      const txt = await r.text();
+      if (!r.ok) {
+        throw new Error(txt || `后端代理错误: ${r.status}`);
+      }
+      return this.tryParseJSON(txt);
     }
 
     const system =
@@ -155,7 +159,11 @@ export class GeminiService {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ items, dimensions, context: userContext }),
       });
-      if (r.ok) return r.json();
+      const txt = await r.text();
+      if (!r.ok) {
+        throw new Error(txt || `后端代理错误: ${r.status}`);
+      }
+      return this.tryParseJSON(txt);
     }
     const prompt = `你是一个顶级的产品战略专家。请根据以下素材，为这几个产品生成一份深度的对标矩阵。
     

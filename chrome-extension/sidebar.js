@@ -122,11 +122,6 @@ document.addEventListener('DOMContentLoaded', async () => {
             const exec = chrome.scripting.executeScript({
                 target: { tabId: mindFlowTabId },
                 func: async (url, content) => {
-                    // 缺少密钥的早期检测
-                    const hasKey = !!(window.__ZHIPU_KEY__ || (window.process && window.process.env && (window.process.env.ZHIPU_API_KEY || window.process.env.API_KEY)));
-                    if (!hasKey) {
-                        return { __error__: "缺少 ZHIPU_API_KEY（请在主应用页 Console 设置 window.__ZHIPU_KEY__ 或配置环境变量）" };
-                    }
                     if (window.geminiServiceInstance) {
                         try {
                           return await window.geminiServiceInstance.analyzeRawContent(url, content);
