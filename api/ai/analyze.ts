@@ -10,7 +10,7 @@ export default async function handler(req: Request) {
   const model = process.env.MODEL_NAME || 'glm-4.6v';
   const system = '你是资深产品研究专家，请基于用户提供的原文进行结构化研判。只返回严格的 JSON。';
   const user = `来源 URL: ${url}
-内容快照: ${String(content || '').substring(0, 20000)}
+内容快照(截断至8k): ${String(content || '').substring(0, 8000)}
 
 输出 JSON 字段：
 - title
@@ -33,7 +33,7 @@ export default async function handler(req: Request) {
         { role: 'system', content: system },
         { role: 'user', content: user },
       ],
-      temperature: 0.3,
+      temperature: 0.2,
     }),
     signal: controller.signal,
   }).finally(() => clearTimeout(timeout));
