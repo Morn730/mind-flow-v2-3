@@ -1,4 +1,4 @@
-export const config = { runtime: 'edge' };
+export const config = { runtime: 'nodejs' };
 
 const endpoint = 'https://open.bigmodel.cn/api/paas/v4/chat/completions';
 
@@ -13,6 +13,8 @@ export default async function handler(req: Request) {
     ...(Array.isArray(history) ? history.map((h: any) => ({ role: h.role, content: h.parts?.[0]?.text || h.text || '' })) : []),
     { role: 'user', content: message },
   ];
+  const controller = new AbortController();
+  const timeout = setTimeout(() => controller.abort(), 55000);
   const upstream = await fetch(endpoint, {
     method: 'POST',
     headers: {
@@ -21,7 +23,8 @@ export default async function handler(req: Request) {
       Accept: 'text/event-stream',
     },
     body: JSON.stringify({ model, messages, stream: true }),
-  });
+    signal: controller.signal,
+  }).finally(() => clearTimeout(timeout));
   if (!upstream.ok || !upstream.body) {
     const text = await upstream.text().catch(() => '');
     return new Response(text || 'Upstream Error', { status: upstream.status });

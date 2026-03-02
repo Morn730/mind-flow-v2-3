@@ -1,4 +1,4 @@
-export const config = { runtime: 'edge' };
+export const config = { runtime: 'nodejs' };
 
 const endpoint = 'https://open.bigmodel.cn/api/paas/v4/chat/completions';
 
@@ -19,6 +19,8 @@ ${items.map((i: any) => `[${i.productName}] ${i.content}`).join('\n\n')}
 2. rows
 3. summary
 4. strategies(type,title,content)`;
+  const controller = new AbortController();
+  const timeout = setTimeout(() => controller.abort(), 55000);
   const upstream = await fetch(endpoint, {
     method: 'POST',
     headers: {
@@ -33,7 +35,8 @@ ${items.map((i: any) => `[${i.productName}] ${i.content}`).join('\n\n')}
       ],
       temperature: 0.5,
     }),
-  });
+    signal: controller.signal,
+  }).finally(() => clearTimeout(timeout));
   const text = await upstream.text();
   if (!upstream.ok) return new Response(text || 'Upstream Error', { status: upstream.status });
   let data: any = {};
