@@ -4,8 +4,7 @@
   "outputDirectory": "dist",
   "functions": {
     "api/ai/*.ts": {
-      "maxDuration": 60,
-      "regions": ["hkg1"]
+      "maxDuration": 60
     }
   }
 }
