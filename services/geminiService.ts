@@ -133,6 +133,16 @@ export class GeminiService {
    * URL-based extraction using Search Grounding.
    */
   async extractWebContent(url: string) {
+    if (this.baseApi) {
+      const r = await fetch(`${this.baseApi}/analyze`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ url, content: "" }),
+      });
+      const txt = await r.text();
+      if (!r.ok) throw new Error(txt || `后端代理错误: ${r.status}`);
+      return this.tryParseJSON(txt);
+    }
     const system = "你将收到一个网页 URL，请根据常识推断网页主要信息并给出要点总结。";
     const user = `请深度解析这个网页的内容：${url}
 若无法直接访问，请基于 URL 与常识猜测内容结构，返回 300-600 字摘要。`;
