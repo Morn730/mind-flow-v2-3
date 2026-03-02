@@ -5,7 +5,7 @@
   "functions": {
     "api/ai/*.ts": {
       "maxDuration": 60,
-      "memory": 512
+      "regions": ["hkg1"]
     }
   }
 }
